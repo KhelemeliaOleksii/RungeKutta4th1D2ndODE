@@ -56,7 +56,7 @@ struct CoordsCartesian
 
 int testFunction(const double value, const double argue, double *result)
 {
-    *result = argue;
+    *result = argue*argue*argue;
     return 0;
 }
 

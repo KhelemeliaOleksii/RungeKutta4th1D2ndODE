@@ -41,24 +41,24 @@ int calculateCoeff4(const double x, const double t, const double dt,
     return 0;
 }
 
-int calculateNext(const double x_prev, const double t, const double dt,
-                  int function(const double x_temp, const double t_temp, double *result_temp),
+int calculateNext(const double t, const double xPrev, const double dt,
+                  int function(const double tTemp, const double xTemp, double *resultTemp),
                   double *x_next)
 {
     double coeff1, coeff2, coeff3, coeff4;
 
-    calculateCoeff1(x_prev, t, dt, function, &coeff1);
-    calculateCoeff2(x_prev, t, dt, function, coeff1, &coeff2);
-    calculateCoeff3(x_prev, t, dt, function, coeff2, &coeff3);
-    calculateCoeff4(x_prev, t, dt, function, coeff3, &coeff4);
+    calculateCoeff1(xPrev, t, dt, function, &coeff1);
+    calculateCoeff2(xPrev, t, dt, function, coeff1, &coeff2);
+    calculateCoeff3(xPrev, t, dt, function, coeff2, &coeff3);
+    calculateCoeff4(xPrev, t, dt, function, coeff3, &coeff4);
 
     *x_next = x_prev + (coeff1 + (2 * coeff2) + (2 * coeff3) + coeff4) / 6.;
     return 0;
 }
 
-int writeResults(const double x, const double t)
+int writeResults(const double t, const double x)
 {
-    fprintf(stdout, "%e\t%e\n", x, t);
+    fprintf(stdout, "%e\t%e\n", t, x);
     return 0;
 };
 
@@ -68,24 +68,24 @@ int writeHeaderForResults()
     return 0;
 };
 
-int performRungeKutta4th1thODE(const double initArgue, const double initValue,
-                               const double finalArgue, const int numberStep,
+int performRungeKutta4th1thODE(const double tInit, const double xInit,
+                               const double tFinal, const int numberStep,
                                int function(const double x_temp, const double t_temp, double *result_temp))
 {
 
-    double tempValue = initValue;
-    double tempArgue = initArgue;
-    double step = (finalArgue - initArgue) / (1. * numberStep);
+    double xTemp = xInit;
+    double tTemp = tInit;
+    double tStep = (tFinal - tInit) / (1. * numberStep);
 
     writeHeaderForResults();
-    writeResults(tempArgue, tempValue);
+    writeResults(tTemp, xTemp);
 
-    for (; tempArgue < finalArgue; )
+    for (; tTemp < tFinal; )
     {
-        calculateNext(tempValue, tempArgue, step, function, &tempValue);
-        tempArgue += step;
+        calculateNext(tTemp, xTemp, tStep, function, &tTemp);
+        tTemp += tStep;
 
-        writeResults(tempArgue, tempValue);
+        writeResults(tTemp, xTemp);
     }
 
     return 0;
