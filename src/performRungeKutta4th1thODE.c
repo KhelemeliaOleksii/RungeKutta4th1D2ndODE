@@ -1,8 +1,8 @@
 #include <math.h>
 #include <stdio.h>
 
-int calculateCoeff1(const double x, const double t, const double dt,
-                    int function(const double x_temp, const double t_temp, double *result_temp),
+int calculateCoeff1(const double t, const double x, const double dt,
+                    int function(const double xTemp, const double tTemp, double *result),
                     double *result)
 {
     function(x, t, result);
@@ -11,8 +11,8 @@ int calculateCoeff1(const double x, const double t, const double dt,
     return 0;
 };
 
-int calculateCoeff2(const double x, const double t, const double dt,
-                    int function(const double x_temp, const double t_temp, double *result_temp),
+int calculateCoeff2(const double t, const double x, const double dt,
+                    int function(const double xTemp, const double tTemp, double *result),
                     const double coeffPrev,
                     double *result)
 {
@@ -21,8 +21,8 @@ int calculateCoeff2(const double x, const double t, const double dt,
     return 0;
 };
 
-int calculateCoeff3(const double x, const double t, const double dt,
-                    int function(const double x_temp, const double t_temp, double *result_temp),
+int calculateCoeff3(const double t, const double x, const double dt,
+                    int function(const double xTemp, const double tTemp, double *result),
                     const double coeffPrev,
                     double *result)
 {
@@ -31,8 +31,8 @@ int calculateCoeff3(const double x, const double t, const double dt,
     return 0;
 };
 
-int calculateCoeff4(const double x, const double t, const double dt,
-                    int function(const double x_temp, const double t_temp, double *result_temp),
+int calculateCoeff4(const double t, const double x, const double dt,
+                    int function(const double xTemp, const double tTemp, double *result),
                     const double coeffPrev,
                     double *result)
 {
@@ -41,18 +41,18 @@ int calculateCoeff4(const double x, const double t, const double dt,
     return 0;
 }
 
-int calculateNext(const double t, const double xPrev, const double dt,
-                  int function(const double tTemp, const double xTemp, double *resultTemp),
-                  double *x_next)
+int calculateNext(const double tPrev, const double xPrev, const double dt,
+                  int function(const double t, const double x, double *result),
+                  double *xNext)
 {
     double coeff1, coeff2, coeff3, coeff4;
 
-    calculateCoeff1(xPrev, t, dt, function, &coeff1);
-    calculateCoeff2(xPrev, t, dt, function, coeff1, &coeff2);
-    calculateCoeff3(xPrev, t, dt, function, coeff2, &coeff3);
-    calculateCoeff4(xPrev, t, dt, function, coeff3, &coeff4);
+    calculateCoeff1(tPrev, xPrev, dt, function, &coeff1);
+    calculateCoeff2(tPrev, xPrev, dt, function, coeff1, &coeff2);
+    calculateCoeff3(tPrev, xPrev, dt, function, coeff2, &coeff3);
+    calculateCoeff4(tPrev, xPrev, dt, function, coeff3, &coeff4);
 
-    *x_next = x_prev + (coeff1 + (2 * coeff2) + (2 * coeff3) + coeff4) / 6.;
+    *xNext = xPrev + (coeff1 + (2 * coeff2) + (2 * coeff3) + coeff4) / 6.;
     return 0;
 }
 
@@ -64,27 +64,26 @@ int writeResults(const double t, const double x)
 
 int writeHeaderForResults()
 {
-    fprintf(stdout, "t\tvalue\n");
+    fprintf(stdout, "t\tx(t)\n");
     return 0;
 };
 
-int performRungeKutta4th1thODE(const double tInit, const double xInit,
+int performRungeKutta4th1thODE(const double tInitial, const double xInitial,
                                const double tFinal, const int numberStep,
-                               int function(const double x_temp, const double t_temp, double *result_temp))
+                               int function(const double argu, const double func, double *result))
 {
-
-    double xTemp = xInit;
-    double tTemp = tInit;
-    double tStep = (tFinal - tInit) / (1. * numberStep);
+    int i;
+    double tTemp = tInitial;
+    double xTemp = xInitial;
+    double tStep = (tFinal - tInitial) / (double)numberStep;
 
     writeHeaderForResults();
     writeResults(tTemp, xTemp);
 
-    for (; tTemp < tFinal; )
+    for (i=0; i < numberStep; i++)
     {
-        calculateNext(tTemp, xTemp, tStep, function, &tTemp);
-        tTemp += tStep;
-
+        calculateNext(tTemp, xTemp, tStep, function, &xTemp);
+        tTemp = tTemp + tStep;
         writeResults(tTemp, xTemp);
     }
 

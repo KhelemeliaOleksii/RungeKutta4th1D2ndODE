@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <conio.h>
+#include <stdlib.h>
 
 #include "../include/configureParams.h"
 #include "../include/performRungeKutta4th1thODE.h"
@@ -85,10 +86,16 @@ int calculateFunction(const double x, const double t, double *value)
 
 int main()
 {
-    double timeInitial, coordInitial, timeFinal;
+    double arguInitial, funcInitial, arguFinal;
     int numberStep;
 
-    configureParams1D1thODE(&timeInitial, &coordInitial, &timeFinal, &numberStep);
+	char *ptr_msg;
+    ptr_msg = (char*) malloc(200*sizeof(char));
+
+    if (configureParams1D1thODE(&arguInitial, &funcInitial, &arguFinal, &numberStep, &ptr_msg) < 0) {
+        fprintf(stderr, "%s", ptr_msg);
+        exit(1);
+    }
 
     // printf("intial time %f\n", timeInitial);
     // printf("Initial coord %f\n", coordInitial);
@@ -96,11 +103,11 @@ int main()
     // printf("Time final %f\n", timeFinal);
     // printf("NUmber of steps %d\n", numberStep);
     
-    performRungeKutta4th1thODE(timeInitial, coordInitial, timeFinal, numberStep, testFunction);
+    performRungeKutta4th1thODE(arguInitial, funcInitial, arguFinal, numberStep, testFunction);
 
 
     printf("Press any key to exit...\n");
     getch();
-
+    free(ptr_msg);
     return 0;
 }
